@@ -39,7 +39,12 @@
         {
           "image": "./assets/images/android-icon-foreground.png",
           "resizeMode": "contain",
-          "backgroundColor": "#8B0000"
+          "backgroundColor": "#8B0000",
+          "ios": {
+            "image": "./assets/images/splash-icon-ios.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#FFFFFF"
+          }
         }
       ],
       [
