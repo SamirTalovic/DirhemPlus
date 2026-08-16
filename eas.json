@@ -10,15 +10,22 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk" 
+        "buildType": "apk"
       },
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "ios": {
+        "simulator": false
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "POPUNITI_NAKON_KREIRANJA_APLIKACIJE_U_APP_STORE_CONNECT"
+      }
+    }
   }
 }

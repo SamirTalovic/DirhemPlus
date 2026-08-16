@@ -4,16 +4,16 @@
     "slug": "DirhemPlus",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/android-icon-foreground.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "dirhemplus",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.anonymous.DirhemPlus",
+      "icon": "./assets/images/icon.png",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSFaceIDUsageDescription": "Aplikacija koristi Face ID za brzu i sigurnu prijavu na vaš nalog."
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -42,7 +42,12 @@
           "backgroundColor": "#8B0000"
         }
       ],
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ],
       "expo-font",
       [
         "expo-notifications",
