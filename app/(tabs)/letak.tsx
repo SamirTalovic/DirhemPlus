@@ -10,7 +10,7 @@ export default function LetakScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`https://dirhemmarket.click/api/letak`)
+    fetch(`${API_URL}letak`)
       .then(async res => {
       const text = await res.text(); // Prvo uzmi sirov tekst
       if (!res.ok) {

@@ -4,7 +4,6 @@ import { Barcode } from 'expo-barcode-generator';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode, JwtPayload } from "jwt-decode";
-import { API_URL } from '../../config';
 
 const { width } = Dimensions.get('window');
 
@@ -61,11 +60,13 @@ export default function BarcodeScreen() {
           {code ? (
             <Barcode
               value={code}
-              options={{ 
-                format: 'EAN13', 
-                width: 1.8, 
+              options={{
+                // EAN13 prihvata isključivo 12 ili 13 cifara — sa bilo čim drugim
+                // biblioteka baca izuzetak i ruši ceo ekran. CODE128 je siguran fallback.
+                format: /^\d{12,13}$/.test(code) ? 'EAN13' : 'CODE128',
+                width: 1.8,
                 height: 100,
-                background: '#FFFFFF' 
+                background: '#FFFFFF'
               }}
             />
           ) : (

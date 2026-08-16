@@ -9,8 +9,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { registerForPushNotificationsAsync } from '../services/notifications'; // Povezana pomoćna funkcija
+import { API_URL } from '../config';
 
-const API_URL = 'https://dirhemmarket.click/api/auth/login'; 
+// Backend vraća greške čas kao goli JSON string ("Pogrešan email ili lozinka."),
+// čas kao objekat ({ message: "..." }). Ova funkcija pokriva oba slučaja.
+const extractErrorMessage = (payload: any, fallback: string) => {
+  if (typeof payload === 'string' && payload.trim()) return payload.trim();
+  return payload?.message || payload?.title || fallback;
+};
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -51,17 +57,25 @@ export default function LoginScreen() {
 
     try {
       // 2. Šaljemo podatke uključujući i generisani pushToken
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}auth/login`, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: email.trim(), 
+        body: JSON.stringify({
+          email: email.trim(),
           password: password,
           expoPushToken: pushToken // <--- Prosleđivanje tokena serveru
         })
       });
 
-      const data = await response.json();
+      // Čitamo sirov tekst pa tek onda parsiramo — server ume da vrati i čist tekst
+      // umesto JSON-a, u kom slučaju bi response.json() bacio grešku.
+      const rawBody = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(rawBody);
+      } catch {
+        data = rawBody;
+      }
 
       if (response.ok) {
         await SecureStore.setItemAsync('userToken', data.token);
@@ -72,9 +86,13 @@ export default function LoginScreen() {
         Toast.show({ type: 'success', text1: 'Uspešna prijava 🎉', text2: `Dobrodošli nazad!` });
         router.replace('/(tabs)/account');
       } else {
-        Toast.show({ type: 'error', text1: 'Greška! ❌', text2: data.message || 'Neispravni podaci.' });
+        Toast.show({
+          type: 'error',
+          text1: 'Greška! ❌',
+          text2: extractErrorMessage(data, 'Neispravni podaci.'),
+        });
       }
-    } catch (error: any) {
+    } catch {
       Toast.show({ type: 'error', text1: 'Greška! ❌', text2: 'Server nije dostupan.' });
     } finally {
       setLoading(false);
@@ -113,12 +131,14 @@ export default function LoginScreen() {
             autoCapitalize="none"
             onChangeText={setEmail} 
           />
-          <TextInput 
-            style={styles.input} 
-            placeholder="Lozinka" 
+          <TextInput
+            style={styles.input}
+            placeholder="Lozinka"
             placeholderTextColor="#999"
-            secureTextEntry 
-            onChangeText={setPassword} 
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={setPassword}
           />
           
           <View style={styles.actionRow}>

@@ -1,1 +1,1 @@
-export const API_URL = ' https://dirhemmarket.click/api/   ';
+export const API_URL = 'https://dirhemmarket.click/api/';

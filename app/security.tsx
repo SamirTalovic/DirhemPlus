@@ -72,7 +72,7 @@ export default function SecurityScreen() {
     setLoading(true);
     try {
       const token = await SecureStore.getItemAsync('userToken');
-      const response = await fetch(`https://dirhemmarket.click/api/auth/change-password`, {
+      const response = await fetch(`${API_URL}auth/change-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ export default function SecurityScreen() {
         return;
       }
 
-      const response = await fetch(`https://dirhemmarket.click/api/auth/delete-user/${userId}`, {
+      const response = await fetch(`${API_URL}auth/delete-user/${userId}`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`,

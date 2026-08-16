@@ -17,7 +17,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '../config';
-const API_BASE_URL = API_URL; 
 
 export default function ReceiptsScreen() {
   const router = useRouter();
@@ -60,7 +59,7 @@ export default function ReceiptsScreen() {
 
   const fetchMyOrders = async (token: string) => {
     try {
-      const response = await fetch(`https://dirhemmarket.click/api/orders/my-orders`, {
+      const response = await fetch(`${API_URL}orders/my-orders`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

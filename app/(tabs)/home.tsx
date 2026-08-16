@@ -43,7 +43,7 @@ export default function RecommendationsScreen() {
           return;
         }
 
-        const response = await fetch(`https://dirhemmarket.click/api/recommendations/user/${userId}`);
+        const response = await fetch(`${API_URL}recommendations/user/${userId}`);
         if (!response.ok) {
           throw new Error(`Greška na serveru: ${response.status}`);
         }

@@ -33,7 +33,7 @@ export default function AccountScreen() {
   const fetchUserData = async () => {
     try {
       const token = await SecureStore.getItemAsync('userToken');
-      const response = await fetch(`https://dirhemmarket.click/api/auth/me`, {
+      const response = await fetch(`${API_URL}auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -67,6 +67,7 @@ export default function AccountScreen() {
 
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync('userToken');
+    await SecureStore.deleteItemAsync('userName');
     router.replace('/');
   };
 

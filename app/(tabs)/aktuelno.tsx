@@ -6,9 +6,10 @@ import {
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { API_URL } from '../../config';
 
 const { width } = Dimensions.get('window');
-const API_URL = 'https://dirhemmarket.click/api/announcements';
+const ANNOUNCEMENTS_URL = `${API_URL}announcements`;
 
 interface Announcement {
   id: number;
@@ -25,7 +26,7 @@ export default function AktuelnoScreen() {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(ANNOUNCEMENTS_URL);
       if (response.ok) {
         const data = await response.json();
         setAnnouncements(data);

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
@@ -17,15 +17,22 @@ export default function ProfileDetails() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Čuvamo id tajmera da bismo ga otkazali ako korisnik sam ode sa ekrana
+  // pre nego što istekne — inače bi se router.back() okinuo dva puta.
+  const backTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Učitaj trenutne podatke pri otvaranju
   useEffect(() => {
     loadUserData();
+    return () => {
+      if (backTimerRef.current) clearTimeout(backTimerRef.current);
+    };
   }, []);
 
   const loadUserData = async () => {
     try {
       const token = await SecureStore.getItemAsync('userToken');
-      const response = await fetch(`https://dirhemmarket.click/api/auth/me`, {
+      const response = await fetch(`${API_URL}auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -60,16 +67,15 @@ export default function ProfileDetails() {
       });
 
       if (response.ok) {
-       Toast.show({
-    type: 'success',
-    text1: 'Uspeh! 🎉',
-    text2: 'Podaci su uspešno ažurirani.',
-    position: 'top',
-  });
-  
-  // Sačekaj malo da korisnik vidi poruku pa ga vrati nazad
-  setTimeout(() => router.back(), 2000);
-        router.back(); // Vrati korisnika nazad na Account tab
+        Toast.show({
+          type: 'success',
+          text1: 'Uspeh! 🎉',
+          text2: 'Podaci su uspešno ažurirani.',
+          position: 'top',
+        });
+
+        // Sačekaj malo da korisnik vidi poruku pa ga vrati nazad
+        backTimerRef.current = setTimeout(() => router.back(), 2000);
       } else {
         Toast.show({
           type: 'error',

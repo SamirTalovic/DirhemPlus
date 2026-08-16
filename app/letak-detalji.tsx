@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { API_URL } from '../config';
+
+// Vraća procenat popusta, ili null ako stara cena nije upotrebljiva
+// (0, null ili niža od nove) — inače bi ispalo NaN% ili -Infinity%.
+const getDiscountPercent = (price: number, oldPrice: number) => {
+  if (!oldPrice || oldPrice <= price) return null;
+  return Math.round((1 - price / oldPrice) * 100);
+};
+
 export default function LetakDetalji() {
   const { id, title, date } = useLocalSearchParams();
   const router = useRouter();
@@ -11,12 +19,16 @@ export default function LetakDetalji() {
 
   useEffect(() => {
     // Povlačenje artikala samo za ID ovog letka
-    fetch(`https://dirhemmarket.click/api/letak/${id}/artikli`)
+    fetch(`${API_URL}letak/${id}/artikli`)
       .then(res => res.json())
       .then(data => {
-        setArtikli(data);
-        setLoading(false);
-      });
+        setArtikli(Array.isArray(data) ? data : []);
+      })
+      .catch(err => {
+        // Bez ovoga ekran zauvek ostane na spinneru kada server ne odgovori
+        console.log('Greška pri učitavanju artikala:', err);
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <View style={styles.centered}><ActivityIndicator color="#D32F2F" /></View>;
@@ -39,13 +51,15 @@ export default function LetakDetalji() {
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
+        renderItem={({ item }) => {
+          const discount = getDiscountPercent(item.price, item.oldPrice);
+          return (
           <View style={styles.itemCard}>
-            <View style={styles.discountBadge}>
-               <Text style={styles.discountText}>
-                 -{Math.round((1 - item.price / item.oldPrice) * 100)}%
-               </Text>
-            </View>
+            {discount !== null && (
+              <View style={styles.discountBadge}>
+                 <Text style={styles.discountText}>-{discount}%</Text>
+              </View>
+            )}
             <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
             <View style={styles.infoWrapper}>
               <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
@@ -56,7 +70,8 @@ export default function LetakDetalji() {
        
             </View>
           </View>
-        )}
+          );
+        }}
       />
     </View>
   );
